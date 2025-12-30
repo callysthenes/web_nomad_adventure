@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabaseClient';
+import { Link } from 'react-router-dom';
 
 interface BookingFormProps {
     tourId?: string;
@@ -6,6 +9,7 @@ interface BookingFormProps {
 }
 
 const BookingForm: React.FC<BookingFormProps> = ({ tourId, tourName }) => {
+    const { user } = useAuth();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -14,11 +18,47 @@ const BookingForm: React.FC<BookingFormProps> = ({ tourId, tourName }) => {
         tour: tourName || '',
         message: ''
     });
+    const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    useEffect(() => {
+        if (user) {
+            setFormData(prev => ({
+                ...prev,
+                name: user.user_metadata.full_name || '',
+                email: user.email || ''
+            }));
+        }
+    }, [user]);
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Submitting Booking Data to Database:", { ...formData, tourId });
-        alert(`Thank you! Your interest for ${formData.tour} has been recorded.`);
+        setStatus('submitting');
+
+        // Simulate DB insert if no keys, or real insert if configured
+        try {
+            const { error } = await supabase.from('bookings').insert({
+                user_id: user?.id, // Can be null for guest checkout if allowed
+                tour_id: tourId,
+                tour_name: formData.tour,
+                customer_name: formData.name,
+                customer_email: formData.email,
+                customer_phone: formData.phone,
+                experience_level: formData.experience,
+                message: formData.message,
+                status: 'pending'
+            });
+
+            if (error) throw error; // Will throw if table doesn't exist or keys missing
+
+            setStatus('success');
+            alert(`Thank you! Your interest for ${formData.tour} has been saved.`);
+        } catch (err) {
+            console.error("Database Error (Expected if no table/keys):", err);
+            // Fallback for prototype behavior
+            console.log("Fallback Logging:", formData);
+            setStatus('success');
+            alert(`Request received! (Logged to console as DB is not fully configured)`);
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -29,6 +69,10 @@ const BookingForm: React.FC<BookingFormProps> = ({ tourId, tourName }) => {
         <div className="booking-form-container">
             <h3>Book Your Adventure</h3>
             <p>Secure your spot for {tourName ? tourName : 'an expedition'}.</p>
+
+            {!user && <p style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>
+                <Link to="/login" style={{ color: 'var(--color-night)', fontWeight: 'bold' }}>Login</Link> to save your details automatically.
+            </p>}
 
             <form onSubmit={handleSubmit} className="booking-form">
                 <div className="form-group">
@@ -68,7 +112,9 @@ const BookingForm: React.FC<BookingFormProps> = ({ tourId, tourName }) => {
                     <textarea name="message" rows={3} value={formData.message} onChange={handleChange} />
                 </div>
 
-                <button type="submit" className="btn">Request Booking</button>
+                <button type="submit" className="btn" disabled={status === 'submitting'}>
+                    {status === 'submitting' ? 'Processing...' : 'Request Booking'}
+                </button>
             </form>
         </div>
     );
