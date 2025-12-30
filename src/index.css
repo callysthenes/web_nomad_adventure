@@ -1,0 +1,332 @@
+/* Portfolio & Cards */
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.tour-card {
+  background: var(--color-twilight);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.tour-card:hover {
+  transform: translateY(-5px);
+}
+
+.tour-image-placeholder {
+  height: 200px;
+  background: var(--color-rust);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+.tour-content {
+  padding: var(--spacing-md);
+}
+
+.tour-meta {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.tour-badge {
+  font-size: 0.8rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.difficulty-easy {
+  color: #4CAF50;
+  border: 1px solid #4CAF50;
+}
+
+.difficulty-medium {
+  color: var(--color-gold);
+  border: 1px solid var(--color-gold);
+}
+
+.difficulty-hard {
+  color: var(--color-ochre);
+  border: 1px solid var(--color-ochre);
+}
+
+.difficulty-extreme {
+  color: #FF5722;
+  border: 1px solid #FF5722;
+}
+
+.btn-small {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  margin-top: var(--spacing-sm);
+}
+
+/* Tour Detail Layout */
+.tour-header {
+  background: linear-gradient(rgba(11, 16, 38, 0.8), rgba(11, 16, 38, 0.9)), var(--color-rust);
+  padding: var(--spacing-lg) 0;
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+.tour-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-lg);
+}
+
+@media (min-width: 768px) {
+  .tour-layout {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.detail-section {
+  margin-bottom: var(--spacing-lg);
+  background: var(--color-twilight);
+  padding: var(--spacing-md);
+  border-radius: 8px;
+}
+
+.gpx-placeholder {
+  height: 300px;
+  background: #2A3B55;
+  border: 2px dashed var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--spacing-sm);
+}
+
+.tags {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.tag {
+  background: var(--color-night);
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  font-size: 0.85rem;
+}
+
+/* Booking Form */
+.booking-form-container {
+  background: var(--color-gold);
+  padding: var(--spacing-md);
+  border-radius: 8px;
+  color: var(--color-night);
+}
+
+.booking-form-container h3 {
+  margin-bottom: 0.5rem;
+  color: var(--color-night);
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.booking-form input,
+.booking-form select,
+.booking-form textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  background: var(--color-white);
+}
+
+.booking-form .btn {
+  background: var(--color-night);
+  color: var(--color-white);
+  width: 100%;
+}
+
+.booking-form .btn:hover {
+  background: var(--color-twilight);
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1.5rem 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  background: transparent;
+}
+
+.navbar.scrolled {
+  background: rgba(11, 16, 38, 0.95);
+  padding: 1rem 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(5px);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-logo {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-gold);
+  text-decoration: none;
+  letter-spacing: 1px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-links a {
+  color: var(--color-white);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--color-gold);
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: var(--color-gold);
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+  width: 100%;
+}
+
+/* Page Layout adjustments */
+.page-offset {
+  padding-top: 80px;
+  /* Space for fixed navbar */
+}
+
+/* Global Design System */
+:root {
+  /* Colors - Desert Nomad Palette */
+  --color-sand: #E6D5B8;
+  --color-gold: #D4AF37;
+  --color-ochre: #C07938;
+  --color-rust: #8B4000;
+  --color-night: #0B1026;
+  --color-twilight: #1B2440;
+  --color-white: #FDFBF7;
+  --color-text-main: #FDFBF7;
+  --color-text-muted: #A0A0B0;
+
+  /* Typography */
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 2rem;
+  --spacing-lg: 4rem;
+  --spacing-xl: 8rem;
+
+  /* Transitions */
+  --transition-fast: 0.3s ease;
+  --transition-smooth: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Reset & Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-night);
+  color: var(--color-text-main);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Utilities */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-sm);
+}
+
+.btn {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background: var(--color-ochre);
+  color: var(--color-white);
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 4px;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+  cursor: pointer;
+  border: none;
+  font-size: 1rem;
+}
+
+.btn:hover {
+  background: var(--color-rust);
+  transform: translateY(-2px);
+}
+
+/* Scroll Animations */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(20vh);
+  visibility: hidden;
+  transition: opacity 1s ease-out, transform 1.2s ease-out;
+  will-change: opacity, visibility;
+}
+
+.fade-in-section.is-visible {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+}
