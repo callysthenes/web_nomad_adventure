@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabaseClient';
 import { Link } from 'react-router-dom';
 
 interface BookingFormProps {
@@ -24,8 +23,9 @@ const BookingForm: React.FC<BookingFormProps> = ({ tourId, tourName }) => {
         if (user) {
             setFormData(prev => ({
                 ...prev,
-                name: user.user_metadata.full_name || '',
-                email: user.email || ''
+                name: user.name || '',
+                email: user.email || '',
+                phone: user.phone || ''
             }));
         }
     }, [user]);
@@ -34,30 +34,28 @@ const BookingForm: React.FC<BookingFormProps> = ({ tourId, tourName }) => {
         e.preventDefault();
         setStatus('submitting');
 
-        // Simulate DB insert if no keys, or real insert if configured
         try {
-            const { error } = await supabase.from('bookings').insert({
-                user_id: user?.id, // Can be null for guest checkout if allowed
-                tour_id: tourId,
-                tour_name: formData.tour,
-                customer_name: formData.name,
-                customer_email: formData.email,
-                customer_phone: formData.phone,
-                experience_level: formData.experience,
-                message: formData.message,
-                status: 'pending'
+            const res = await fetch('http://localhost:3001/api/bookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customer_id: user?.id,
+                    product_id: tourId ? parseInt(tourId) : null,
+                    tour_name: formData.tour,
+                    message: `[${formData.experience}] ${formData.message}`,
+                    status: 'pending'
+                })
             });
 
-            if (error) throw error; // Will throw if table doesn't exist or keys missing
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Booking failed');
 
             setStatus('success');
             alert(`Thank you! Your interest for ${formData.tour} has been saved.`);
-        } catch (err) {
-            console.error("Database Error (Expected if no table/keys):", err);
-            // Fallback for prototype behavior
-            console.log("Fallback Logging:", formData);
-            setStatus('success');
-            alert(`Request received! (Logged to console as DB is not fully configured)`);
+        } catch (err: any) {
+            console.error("Booking Error:", err);
+            setStatus('error');
+            alert(`Error: ${err.message}`);
         }
     };
 

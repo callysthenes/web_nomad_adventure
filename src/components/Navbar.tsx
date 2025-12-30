@@ -25,7 +25,7 @@ const Navbar: React.FC = () => {
                     <Link to="/contact" className={location.pathname === '/contact' ? 'active' : ''}>Contact</Link>
 
                     {user ? (
-                        <a href="#" onClick={(e) => { e.preventDefault(); signOut(); }}>Logout ({user.user_metadata.full_name?.split(' ')[0]})</a>
+                        <a href="#" onClick={(e) => { e.preventDefault(); signOut(); }}>Logout ({user.name?.split(' ')[0]})</a>
                     ) : (
                         <Link to="/login" className={location.pathname === '/login' ? 'active' : ''}>Login</Link>
                     )}

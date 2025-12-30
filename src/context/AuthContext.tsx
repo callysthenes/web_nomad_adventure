@@ -1,46 +1,82 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { supabase } from '../lib/supabaseClient';
-import type { Session, User } from '@supabase/supabase-js';
+
+// Use a simple User type matching our SQLite DB
+export interface User {
+    id: number;
+    name: string;
+    email: string;
+    phone?: string;
+}
 
 interface AuthContextType {
-    session: Session | null;
     user: User | null;
-    signOut: () => Promise<void>;
+    signIn: (email: string) => Promise<void>;
+    signUp: (name: string, email: string, phone: string) => Promise<void>;
+    signOut: () => void;
     loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [session, setSession] = useState<Session | null>(null);
     const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false); // No automatic session check for prototype
 
+    // Load user from local storage if exists (simple persistence)
     useEffect(() => {
-        // Get initial session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            setLoading(false);
-        });
-
-        // Listen for changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            setLoading(false);
-        });
-
-        return () => subscription.unsubscribe();
+        const saved = localStorage.getItem('nomad_user');
+        if (saved) {
+            setUser(JSON.parse(saved));
+        }
     }, []);
 
-    const signOut = async () => {
-        await supabase.auth.signOut();
+    const signIn = async (email: string) => {
+        setLoading(true);
+        try {
+            const res = await fetch('http://localhost:3001/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Login failed');
+
+            setUser(data.user);
+            localStorage.setItem('nomad_user', JSON.stringify(data.user));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const signUp = async (name: string, email: string, phone: string) => {
+        setLoading(true);
+        try {
+            const res = await fetch('http://localhost:3001/api/customers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, phone })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Registration failed');
+
+            // Auto login after signup
+            const newUser = { id: data.data.id, name, email, phone };
+            setUser(newUser);
+            localStorage.setItem('nomad_user', JSON.stringify(newUser));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const signOut = () => {
+        setUser(null);
+        localStorage.removeItem('nomad_user');
     };
 
     const value = {
-        session,
         user,
+        signIn,
+        signUp,
         signOut,
         loading
     };

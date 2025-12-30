@@ -1,25 +1,23 @@
 import React, { useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
     const navigate = useNavigate();
+    const { signIn } = useAuth();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMsg('');
+        setSuccessMsg('');
 
         try {
-            const { error } = await supabase.auth.signInWithPassword({
-                email,
-                password
-            });
-
-            if (error) throw error;
-            navigate('/');
+            await signIn(email);
+            setSuccessMsg('Login successful!');
+            setTimeout(() => navigate('/'), 1000);
         } catch (error: any) {
             setErrorMsg(error.message || 'Failed to login');
         }
@@ -32,14 +30,12 @@ const Login: React.FC = () => {
                 <form onSubmit={handleLogin} className="booking-form">
                     <div className="form-group">
                         <label>Email</label>
-                        <input type="email" onChange={(e) => setEmail(e.target.value)} required />
+                        <input type="email" onChange={(e) => setEmail(e.target.value)} required placeholder="Enter your registered email" />
                     </div>
-                    <div className="form-group">
-                        <label>Password</label>
-                        <input type="password" onChange={(e) => setPassword(e.target.value)} required />
-                    </div>
+                    {/* Password removed for simple prototype auth */}
                     <button type="submit" className="btn">Login</button>
                 </form>
+                {successMsg && <p className="auth-msg">{successMsg}</p>}
                 {errorMsg && <p className="auth-error">{errorMsg}</p>}
                 <p className="auth-footer">New rider? <Link to="/register">Create an account</Link></p>
             </div>

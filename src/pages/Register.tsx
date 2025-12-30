@@ -1,35 +1,27 @@
 import React, { useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Register: React.FC = () => {
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [phone, setPhone] = useState('');
     const [fullName, setFullName] = useState('');
     const [msg, setMsg] = useState('');
+    const [errorMsg, setErrorMsg] = useState('');
     const navigate = useNavigate();
+    const { signUp } = useAuth();
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         setMsg('');
+        setErrorMsg('');
 
         try {
-            const { data, error } = await supabase.auth.signUp({
-                email,
-                password,
-                options: {
-                    data: { full_name: fullName }
-                }
-            });
-
-            if (error) throw error;
-
-            if (data.user) {
-                setMsg('Registration successful! Please check your email for verification.');
-                setTimeout(() => navigate('/login'), 3000);
-            }
+            await signUp(fullName, email, phone);
+            setMsg('Registration successful!');
+            setTimeout(() => navigate('/'), 1500);
         } catch (error: any) {
-            setMsg(error.message || 'Error occurred during registration');
+            setErrorMsg(error.message || 'Error occurred during registration');
         }
     };
 
@@ -47,12 +39,13 @@ const Register: React.FC = () => {
                         <input type="email" onChange={(e) => setEmail(e.target.value)} required />
                     </div>
                     <div className="form-group">
-                        <label>Password</label>
-                        <input type="password" onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+                        <label>Phone</label>
+                        <input type="tel" onChange={(e) => setPhone(e.target.value)} />
                     </div>
                     <button type="submit" className="btn">Sign Up</button>
                 </form>
                 {msg && <p className="auth-msg">{msg}</p>}
+                {errorMsg && <p className="auth-error">{errorMsg}</p>}
                 <p className="auth-footer">Already have an account? <Link to="/login">Login here</Link></p>
             </div>
         </div>
